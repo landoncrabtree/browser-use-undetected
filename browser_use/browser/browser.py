@@ -8,10 +8,8 @@ from dataclasses import dataclass, field
 
 from playwright._impl._api_structures import ProxySettings
 from playwright.async_api import Browser as PlaywrightBrowser
-from playwright.async_api import (
-	Playwright,
-	async_playwright,
-)
+from playwright.async_api import Playwright
+from playright.async_api import async_playwright # undetected playwright
 
 from browser_use.browser.context import BrowserContext, BrowserContextConfig
 

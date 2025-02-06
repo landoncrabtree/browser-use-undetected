@@ -242,18 +242,8 @@ class BrowserContext:
 			# Connect to existing Chrome instance instead of creating new one
 			context = browser.contexts[0]
 		else:
-			# Original code for creating new context
-			context = await browser.new_context(
-				viewport=self.config.browser_window_size,
-				no_viewport=False,
-				user_agent=self.config.user_agent,
-				java_script_enabled=True,
-				bypass_csp=self.config.disable_security,
-				ignore_https_errors=self.config.disable_security,
-				record_video_dir=self.config.save_recording_path,
-				record_video_size=self.config.browser_window_size,
-				locale=self.config.locale,
-			)
+			# Get rid of default browseruse context args
+			context = await browser.new_context()
 
 		if self.config.trace_path:
 			await context.tracing.start(screenshots=True, snapshots=True, sources=True)
@@ -265,42 +255,8 @@ class BrowserContext:
 				logger.info(f'Loaded {len(cookies)} cookies from {self.config.cookies_file}')
 				await context.add_cookies(cookies)
 
-		# Expose anti-detection scripts
-		await context.add_init_script(
-			"""
-			// Webdriver property
-			Object.defineProperty(navigator, 'webdriver', {
-				get: () => undefined
-			});
-
-			// Languages
-			Object.defineProperty(navigator, 'languages', {
-				get: () => ['en-US']
-			});
-
-			// Plugins
-			Object.defineProperty(navigator, 'plugins', {
-				get: () => [1, 2, 3, 4, 5]
-			});
-
-			// Chrome runtime
-			window.chrome = { runtime: {} };
-
-			// Permissions
-			const originalQuery = window.navigator.permissions.query;
-			window.navigator.permissions.query = (parameters) => (
-				parameters.name === 'notifications' ?
-					Promise.resolve({ state: Notification.permission }) :
-					originalQuery(parameters)
-			);
-			(function () {
-				const originalAttachShadow = Element.prototype.attachShadow;
-				Element.prototype.attachShadow = function attachShadow(options) {
-					return originalAttachShadow.call(this, { ...options, mode: "open" });
-				};
-			})();
-			"""
-		)
+		# Get rid of default browseruse init scripts
+		# await context.add_init_script()
 
 		return context
 
